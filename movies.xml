@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<collection>
+    <movie>
+        <title>Reservoir Dogs</title>
+        <year>1992</year>
+        <director>Quentin Tarantino</director>
+        <cast>
+            <name>Harvey Keitel</name>
+            <name>Tim Roth</name>
+            <name>Michael Madsen</name>
+            <name>Steve Buscemi</name>
+        </cast>
+    </movie>
+    <movie>
+        <title>Pulp Fiction</title>
+        <year>1994</year>
+        <director>Quentin Tarantino</director>
+        <cast>
+            <name>John Travolta</name>
+            <name>Samuel L. Jackson</name>
+            <name>Bruce Willis</name>
+            <name>Uma Thurman</name>
+        </cast>
+    </movie>          
+</collection>

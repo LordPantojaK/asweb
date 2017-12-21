@@ -1,0 +1,19 @@
+ErrorDocument 404 /404.php
+ErrorDocument 403 /index.php
+#AuthName "personal"
+#AuthType Basic
+#AuthuserFile .htpasswd
+#Require valid-user
+
+DirectoryIndex index.php
+# BEGIN WordPress
+##<IfModule mod_rewrite.c>
+##RewriteEngine On
+##RewriteBase /
+##RewriteRule ^index\.php$ - [L]
+##RewriteCond %{REQUEST_FILENAME} !-f
+##RewriteCond %{REQUEST_FILENAME} !-d
+##RewriteRule . /index.php [L]
+##</IfModule>
+
+# END WordPress

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>insertar datos con ajax</title>
+	<script src="jquery-2.1.4.min.js"></script>
+</head>
+<body>
+	<form id="frmajax" method="POST">
+		<label>Nombre</label>
+		<p></p>
+		<input type="text" name="nombre" id="nombre">
+		<p></p>
+		<label>apellido</label>
+		<p></p>
+		<input type="text" name="apellido" id="apellido">
+		<p></p>
+		<label>Usuario</label>
+		<p></p>
+		<input type="text" name="usuario" id="usuario">
+		<p></p>
+		<label>password</label>
+		<p></p>
+		<input type="text" name="password" id="password">
+		<p></p>
+		<button id="btnguardar">Guardar datos</button>
+	</form>
+	<br>
+        <h1>Personas</h1>
+	<div id="resultado"></div>
+	<button onclick="Cargar();">Mostrar Datos</button>
+        
+</body>
+</html>
+<script>
+function Cargar() {
+	var xmlhttp = new XMLHttpRequest();
+	var url = "consulta.php";
+	xmlhttp.onreadystatechange=function() {
+ 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+ 			var array = JSON.parse(xmlhttp.responseText);
+ 			var i;
+ 			var out = "<table border='1'>";
+ 			for(i = 0; i < array.length; i++) {
+ 				out+=" <tr><td>"+
+ 				array[i].id +
+ 				"</td><td>"+
+ 				array[i].nombre +
+ 				"</td><td>" +
+ 				array[i].apellido+
+ 				"</td><td>"+
+ 				array[i].usuario+
+ 				"</td><td>" +
+ 				array[i].password +
+ 				"</td></tr>";
+ 			}
+ 			out += "</table>";
+ 		document.getElementById("resultado").innerHTML = out;
+ 		}
+	}
+	xmlhttp.open("GET", url, true);
+	xmlhttp.send(); 
+}
+</script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#btnguardar').click(function(){
+			var datos=$('#frmajax').serialize();
+			$.ajax({
+				type:"POST",
+				url:"insertar.php",
+				data:datos,
+				success:function(r){
+					if(r==1){
+						alert("agregado con exito");
+					}else{
+						alert("Fallo el server");
+					}
+				}
+			});
+
+			return false;
+		});
+	});
+</script>
+

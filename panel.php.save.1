@@ -1,0 +1,360 @@
+<?php
+
+include("config.inc.php");
+include("validate.inc.php");
+
+include("header.inc.php");
+
+?>
+<script>
+	
+	function realizaProceso(valorCaja1, valorCaja2){
+       		var parametros = {
+                	"valorCaja1" : valorCaja1,
+                	"valorCaja2" : valorCaja2
+        	};
+        	$.ajax({
+                	data:  parametros,
+                	url:   'ejemplo_ajax_proceso.php',
+                	type:  'post',
+                	beforeSend: function () {
+                        	$("#resultado").html("Procesando, espere por favor...");
+                	},
+                	success:  function (response) {
+                        	$("#resultado").html(response);
+                	}
+       		 });
+	}
+//----------------------------------------------------------------------------------------------------------
+	strLED = "";
+	strLED1 = "";
+	strLED2 = "";
+	strLED3 = "";
+	strLED4 = "";	
+        var LED3_state = 0;
+	var LED4_state = 0;
+	function GetArduinoIO(){
+		//nocache = "&nocache=" + Math.random() * 1000000;
+		var request = new XMLHttpRequest();
+		var url="ajax_inputs.php?";
+    		url=url+strLED;
+                url=url+strLED1;
+                url=url+strLED2;
+                url=url+strLED3;
+                url=url+strLED4;
+    		//url=url+nocache;
+		console.log(url);
+		request.onreadystatechange = function()	{
+			if (this.readyState == 4) {
+				if (this.status == 200) {
+					if (this.responseXML != null) {
+						// ----------------------------------------------------------------------------------------------------------
+						// XML file received - contains LED states
+						if(this.responseXML.getElementsByTagName('fly')[0].childNodes[0].nodeValue == "1") {
+							document.getElementById("ventilador").innerHTML = "ON";
+							document.Ventilador.fly.checked = true;
+						}else if(this.responseXML.getElementsByTagName('fly')[0].childNodes[0].nodeValue =="0"){
+							document.getElementById("ventilador").innerHTML = "OFF";
+							document.Ventilador.fly.checked = false;
+						}
+						if(this.responseXML.getElementsByTagName('LED1')[0].childNodes[0].nodeValue == "1") {
+                                                        document.getElementById("LED1").innerHTML = "ON";
+                                                        document.LED_form1.LED1.checked = true;
+                                                }else if(this.responseXML.getElementsByTagName('LED1')[0].childNodes[0].nodeValue =="0"){
+                                                        document.getElementById("LED1").innerHTML = "OFF";
+                                                        document.LED_form1.LED1.checked = false;
+                                                }
+						if(this.responseXML.getElementsByTagName('LED2')[0].childNodes[0].nodeValue == "1") {
+                                                        document.getElementById("LED2").innerHTML = "ON";
+                                                        document.LED_form1.LED2.checked = true;
+                                                }else if(this.responseXML.getElementsByTagName('LED2')[0].childNodes[0].nodeValue =="0"){
+                                                        document.getElementById("LED4").innerHTML = "OFF";
+                                                        document.LED_form1.LED2.checked = false;
+                                                }
+						if(this.responseXML.getElementsByTagName('LED3')[0].childNodes[0].nodeValue == "1") {
+                                                        document.getElementById("LED3").innerHTML = "ON";
+                                                        document.LED_form1.LED3.checked = true;
+                                                }else if(this.responseXML.getElementsByTagName('LED3')[0].childNodes[0].nodeValue =="0"){
+                                                        document.getElementById("LED3").innerHTML = "OFF";
+                                                        document.LED_form1.LED3.checked = false;
+                                                }
+						if(this.responseXML.getElementsByTagName('LED4')[0].childNodes[0].nodeValue == "1") {
+                                                        document.getElementById("LED4").innerHTML = "ON";
+                                                        document.LED_form1.LED4.checked = true;
+                                                }else if(this.responseXML.getElementsByTagName('LED4')[0].childNodes[0].nodeValue =="0"){
+                                                        document.getElementById("LED4").innerHTML = "OFF";
+                                                        document.LED_form1.LED4.checked = false;
+                                                }
+						// ----------------------------------------------------------------------------------------------------------
+					}//if responseXML
+				}//if 200
+			}//if 4
+		}//onreadystatechange
+		// send HTTP GET request with LEDs to switch on/off if any
+		request.open("GET", url, true);
+		request.send(null);
+		setTimeout('GetArduinoIO()', 2000);
+		strLED = "";
+		strLED1 = "";
+		strLED2 = "";
+		strLED3 = "";
+		strLED4 = "";
+	}//GetArduinoIO
+// ----------------------------------------------------------------------------------------------------------
+	// service LEDs when checkbox checked/unchecked
+	function GetCheck(led_num_str, cb){
+		//alert(led_num_str);
+		if (cb.checked) {
+			strLED += ("&" + led_num_str + "=1");
+		}else {
+			strLED += ("&" + led_num_str + "=0");
+		}
+	}
+// ----------------------------------------------------------------------------------------------------------
+	// service LEDs when checkbox checked/unchecked
+        function GetChecker(){
+                 alert(LED_form.LED1.checked);
+                if (LED_form.LED1.checked) {
+                        strLED1 = "&LED1=1";
+                }else {
+                        strLED1 = "&LED1=0";
+                }
+                if (LED_form.LED2.checked) {
+                        strLED2 = "&LED2=1";
+                }else {
+                        strLED2 = "&LED2=0";
+                }
+        }
+// ----------------------------------------------------------------------------------------------------------
+	function GetButton1(){
+                alert(LED3_state);
+		if (LED3_state === 1) {
+			LED3_state = 0;
+			strLED3 = "&LED3=0";
+		}else {
+			LED3_state = 1;
+			strLED3 = "&LED3=1";
+		}
+	}
+	function GetButton2(){
+		alert(LED4_state);
+		if (LED4_state === 1) {
+			LED4_state = 0;
+			strLED4 = "&LED4=0";
+		}else {
+			LED4_state = 1;
+			strLED4 = "&LED4=1";
+		}
+	}
+// ----------------------------------------------------------------------------------------------------------
+	function Cargar() {
+        var xmlhttp = new XMLHttpRequest();
+        var url = "consulta.php";
+        xmlhttp.onreadystatechange=function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        var array = JSON.parse(xmlhttp.responseText);
+                        var i;
+                        var out = "<table border='1'>";
+                        for(i = 0; i < array.length; i++) {
+                                out+=" <tr><td>"+
+                                array[i].id +
+                                "</td><td>"+
+                                array[i].nombre +
+                                "</td><td>" +
+                                array[i].apellido+
+                                "</td><td>"+
+                                array[i].usuario+
+                                "</td><td>" +
+                                array[i].password +
+                                "</td></tr>";
+                        }
+                        out += "</table>";
+                document.getElementById("resultado").innerHTML = out;
+                }
+        }
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+	}
+        function GetData() {
+    		var xhr; // 1. Instantiate XHR - Start 
+    		if (window.XMLHttpRequest){ 
+        		xhr = new XMLHttpRequest();
+		}else if (window.ActiveXObject){ 
+        		xhr = new ActiveXObject("Msxml2.XMLHTTP");
+		}else{
+        		throw new Error("Ajax is not supported by your browser");
+		}// 1. Instantiate XHR - End
+    		xhr.onreadystatechange = function () {// 2. Handle Response from Server - Start
+        		if (xhr.readyState < 4){
+            			document.getElementById('div1').innerHTML = "Loading...";
+        		}else if (xhr.readyState === 4) {
+            			if (xhr.status == 200 && xhr.status < 300){
+                			xmlDoc = xhr.responseXML; //reponseXML returns an XML document and we assign it to xmlDoc
+                			titles = xmlDoc.getElementsByTagName("title"); //get XML element collection with the content of "title"
+                			document.getElementById('div1').innerHTML = titles[1].childNodes[0].nodeValue; //get first value with "title" element
+            				//----------------------------------------------------
+					cast = xmlDoc.getElementsByTagName("cast");
+					//document.getElementById('resultado').innerHTML= cast[0].get.nodeValue;
+				}
+        		}
+    		}// 2. Handle Response from Server - End
+    		xhr.open('GET', 'movies.xml',true);// 3. Specify your action, location and Send to the server - Start 
+    		xhr.send(null);	// 3. Specify your action, location and Send to the server - End
+	}
+	//check if the first node is an element node
+	function get_firstChild(n) {
+    		var y = n.firstChild;
+    		while (y.nodeType != 1) {
+        		y = y.nextSibling;
+    		}
+    	return y;
+	}
+/*	function get_nextSibling(n) {
+    		var y = n.nextSibling;
+    		while (y.nodeType! = 1) {
+        		y = y.nextSibling;
+    		}
+    		return y;
+	}
+	function get_previousSibling(n) {
+    		var y = n.previousSibling;
+    		//check if the node is an element node
+    		while (y.nodeType != 1) {
+        		y = y.previousSibling;
+    		}
+    	return y;
+	}
+	function get_lastChild(n) {
+    		var y = n.lastChild;
+    		while (y.nodeType!=1) {
+       			 y = y.previousSibling;
+    		}
+   	 return y;
+	}*/
+</script>
+	<style>
+	</style>
+<?php 
+include("menu.inc.php");
+?>
+        <div class="main_page">
+        <h1 id="load">Web  IoT Internet de las Cosas(Casa) Ajax</h1>
+        <div class="IO_box">
+			<h2>Analog Inputs</h2>
+			<p class="small_text">A0 used by Ethernet shield</p>
+			<p class="small_text">A1 used by Ethernet shield</p>
+			<p>A2: <span class="analog">...</span></p>
+			<p>A3: <span class="analog">...</span></p>
+			<p>A4: <span class="analog">...</span></p>
+			<p>A5: <span class="analog">...</span></p>
+		</div>
+		<div class="IO_box">
+			<h2>Switch Inputs</h2>
+			<p class="small_text">D0: used by serial RX</p>
+			<p class="small_text">D1: used by serial TX</p>
+			<p>Switch 1 (D2): <span class="switches">...</span></p>
+			<p>Switch 2 (D3): <span class="switches">...</span></p>
+			<p class="small_text">D4: used by Ethernet shield</p>
+			<p>Switch 3 (D5): <span class="switches">...</span></p>
+		</div>
+<!---		<div class="IO_box">
+			<h2>LEDs Using Checkboxes</h2>
+			<form id="check_LEDs" name="LED_form">
+				<input type="checkbox" name="LED1" value="0" onclick="GetChecker()" />LED 1 (D6)<br /><br />
+				<input type="checkbox" name="LED2" value="0" onclick="GetChecker()" />LED 2 (D7)<br /><br />
+			</form>
+		</div>
+<!----------------------------------------------------------------------------------------------------------------------!>
+		<div class="IO_box">
+			<h2>LEDs Using Buttons</h2>
+			<button type="button" id="LED33" onclick="GetButton1()">LED 3 is OFF (D8)</button><br /><br />
+			<button type="button" id="LED43" onclick="GetButton2()">LED 4 is OFF (D9)</button><br /><br />
+			<p class="small_text">D10 to D13 used by Ethernet shield</p>
+		</div>
+<!----------------------------------------------------------------------------------------------------------------------!>
+                <div class="IO_box">
+                        <form>
+			<p>Fecha: <span in="fecha">...</span></p>
+                        <p>Temperatura: <span id="temp">...</span></p>
+			</form>
+			<br>
+			<div id="txtHint"><b>Aqui se muestra  la ultima temperatura ...</b></div>
+                </div>
+               <div class="caja">
+               <br>
+               <h1>Arduino MEGA 24 Output</h1>
+<!----------------------------------------------------------------------------------------------------------------------!>
+		<div class="out_box">
+			<form name="Ventilador"><label for="fly">Ventilador</label>
+  				<input type="checkbox" name="fly" value="1" id="fly" onclick="GetCheck('fly', this)" />
+				<a id="comprobar" href="#" hidden>Comprobar disponibilidad...</a>	
+			</form>
+			<div class="error" id="ventilador"></div>
+		</div>
+<!----------------------------------------------------------------------------------------------------------------------!>
+		<div class="out_box">
+			<form class="check_LEDs" name="LED_form1">
+				<input type="checkbox" name="LED1" value="0" onclick="GetCheck('LED1', this)" />LED1 (D26)<div class="error" id="LED1"></div>
+				<input type="checkbox" name="LED2" value="0" onclick="GetCheck('LED2', this)" />LED2 (D27)<div class="error" id="LED2"></div><br />
+				<input type="checkbox" name="LED3" value="0" onclick="GetCheck('LED3', this)" />LED3 (D28)<div class="error" id="LED3"></div>
+				<input type="checkbox" name="LED4" value="0" onclick="GetCheck('LED4', this)" />LED4 (D29)<div class="error" id="LED4"></div>
+			</form>
+		</div>
+<!----------------------------------------------------------------------------------------------------------------------!>
+		<div class="out_box">
+			<form class="check_LEDs" name="LED_form2">
+				<input type="checkbox" name="LED5" value="0" onclick="GetCheck('LED5', this)" />LED 5 (D30)
+				<input type="checkbox" name="LED6" value="0" onclick="GetCheck('LED6', this)" />LED 6 (D31)<br />
+				<input type="checkbox" name="LED7" value="0" onclick="GetCheck('LED7', this)" />LED 7 (D32)
+				<input type="checkbox" name="LED8" value="0" onclick="GetCheck('LED8', this)" />LED 8 (D33)
+			</form>
+		</div>
+<!---		<div class="out_box">
+			<form class="check_LEDs" name="LED_form3">
+				<input type="checkbox" name="LED9" value="0" onclick="GetCheck('LED9', this)" />LED 9 (D34)
+				<input type="checkbox" name="LED10" value="0" onclick="GetCheck('LED10', this)" />LED 10 (D35)<br />
+				<input type="checkbox" name="LED11" value="0" onclick="GetCheck('LED11', this)" />LED 11 (D36)
+				<input type="checkbox" name="LED12" value="0" onclick="GetCheck('LED12', this)" />LED 12 (D37)
+			</form>
+		</div>
+		<div class="out_box">
+			<form class="check_LEDs" name="LED_form4">
+				<input type="checkbox" name="LED13" value="0" onclick="GetCheck('LED13', this)" />LED 13 (D38)
+				<input type="checkbox" name="LED14" value="0" onclick="GetCheck('LED14', this)" />LED 14 (D39)<br />
+				<input type="checkbox" name="LED15" value="0" onclick="GetCheck('LED15', this)" />LED 15 (D40)
+				<input type="checkbox" name="LED16" value="0" onclick="GetCheck('LED16', this)" />LED 16 (D41)
+			</form>
+		</div>
+		<div class="out_box">
+			<form class="check_LEDs" name="LED_form5">
+				<input type="checkbox" name="LED17" value="0" onclick="GetCheck('LED17', this)" />LED 17 (D42)
+				<input type="checkbox" name="LED18" value="0" onclick="GetCheck('LED18', this)" />LED 18 (D43)<br />
+				<input type="checkbox" name="LED19" value="0" onclick="GetCheck('LED19', this)" />LED 19 (D44)
+				<input type="checkbox" name="LED20" value="0" onclick="GetCheck('LED20', this)" />LED 20 (D45)
+			</form>
+		</div>
+		<div class="out_box">
+			<form class="check_LEDs" name="LED_form6">
+				<input type="checkbox" name="LED21" value="0" onclick="GetCheck('LED21', this)" />LED 21 (D46)
+				<input type="checkbox" name="LED22" value="0" onclick="GetCheck('LED22', this)" />LED 22 (D47)<br />
+				<input type="checkbox" name="LED23" value="0" onclick="GetCheck('LED23', this)" />LED 23 (D48)
+				<input type="checkbox" name="LED24" value="0" onclick="GetCheck('LED24', this)" />LED 24 (D49)
+			</form>
+		</div>
+--->            <div class="out_box">
+              	 <form class="check_LEDs" name="pruebas"><!----
+                <input type="checkbox" name="FOCO" id="valor1" value="1" onclick="GetCheck('FOCO', this)"/>FOCO
+                <input type="checkbox" name="FOCO" id="valor2" value="0" onclick="GetCheck('FOOO', this)"/>FOCO
+                Realiza suma
+                <input type="button" href="javascript:;" onclick="realizaProceso($('#valor1').val(), $('#valor2').val());return false;" value="Calcula"/>--->
+                <input type="button" onclick="GetData();" value="Obtener"/>
+		 </form>
+		<div id="div1"></div>
+                <br>Resultado: <span id="resultado">0</span>
+                </div>
+              </div>
+         </div>
+<?php 
+include("footer.inc.php");
+?>
+
